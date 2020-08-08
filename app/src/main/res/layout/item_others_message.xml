@@ -22,7 +22,7 @@
             android:background="@drawable/bg_wechat_chat1"
             android:gravity="center_vertical"
             android:lineSpacingExtra="8px"
-            android:maxWidth="320dp"
+            android:maxWidth="300dp"
             android:paddingLeft="32dp"
             android:paddingTop="2dp"
             android:paddingRight="12dp"

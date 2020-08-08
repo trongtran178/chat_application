@@ -3,7 +3,9 @@
     package="com.example.chatapp">
 
     <uses-permission android:name="android.permission.INTERNET" />
-
+    <meta-data
+        android:name="com.google.firebase.messaging.default_notification_channel_id"
+        android:value="CHATAPP_FIREBASE_NOTITICATION_ID" />
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -24,6 +26,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-<!--        <activity android:name=".MessageListActivity" />-->
+
+        <service
+            android:name=".services.MyFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+        <!--        <activity android:name=".MessageListActivity" />-->
     </application>
 </manifest>

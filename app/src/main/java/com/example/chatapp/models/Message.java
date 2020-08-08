@@ -1,11 +1,8 @@
 package com.example.chatapp.models;
 
 import java.util.Date;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class Message {
-
-
     private String content;
     private String sender; // sender is email
     private Date createdAt;
