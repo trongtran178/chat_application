@@ -1,13 +1,24 @@
 package com.example.chatapp;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.Context;
+import android.content.Intent;
+import android.media.AudioAttributes;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -34,11 +45,15 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 
+import org.w3c.dom.Document;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+
+import javax.annotation.Nullable;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -55,9 +70,15 @@ public class MainActivity extends AppCompatActivity {
     private static String FIREBASE_CHAT_COLLECTION_KEY = "Chat";
     private static String FIREBASE_DEVICE_REGISTRATION_COLLECTION_KEY = "DeviceRegistrationToken";
 
-    private boolean isFirstLoading = false;
     private static final String FIREBASE_INSTANCE_ID_TAG = "FIREBASE_INSTANCE_ID_TAG";
-    private DocumentSnapshot firstVisible;
+    private DocumentSnapshot start, end;
+    private List<Message> messages;
+    private List<EventListener> listeners;
+    private boolean isTouchBoundary = false;
+
+    private static final String CHANNEL_ID = "CHAT_NOTIFICATION_CHANNEL_ID";
+    private static final String CHANNEL_DESCRIPTION = "CHAT_NOTIFICATION_DESCRIPTION";
+
 
     private static CollectionReference fireStoreChat() {
         return FirebaseFirestore.getInstance().collection(FIREBASE_CHAT_COLLECTION_KEY);
@@ -72,8 +93,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        createNotificationChannel();
         firebaseAuth = FirebaseAuth.getInstance();
+        messages = new ArrayList<>();
+        listeners = new ArrayList<>();
 
         sendMessageButton = findViewById(R.id.send_message_button);
         messageContentEditText = findViewById(R.id.message_content_edit_text);
@@ -108,49 +131,59 @@ public class MainActivity extends AppCompatActivity {
 
                     }
                 });
+
         realtimeUpdateListener();
 
+        messageListAdapter.setOnLoadMoreMessageListener(new OnLoadMoreMessageListener() {
+            @Override
+            public void onLoadMore() {
+                if (isTouchBoundary) return;
+                messages.add(0, null);
+                new Handler().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        messageListAdapter.setMessages(messages);
+                        messageListAdapter.setLoading(true);
+                        messages.remove(0);
+                        loadOlderMessage();
+                    }
+                });
+            }
+        });
+    }
 
-        // LOAD MORE LOGIC
-//        messageListAdapter.setOnLoadMoreMessageListener(new OnLoadMoreMessageListener() {
-//            @Override
-//            public void onLoadMore() {
-//                final List<Message> messages = messageListAdapter.getMessages();
-//                messages.add(0, null);
-//
-//                fireStoreChat().orderBy("createdAt")
-//                        .endBefore(firstVisible)
-//                        // .endBefore(firstVisible)
-//                        .limit(30)
-//                        .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-//                    @Override
-//                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-//                        firstVisible = null;
-//                        messages.remove(0); // remove loading
-//
-//                        List<Message> messages = messageListAdapter.getMessages();
-//                        List<Message> olderMessages = new ArrayList<>();
-//                        System.out.println(114 + ", " + queryDocumentSnapshots.getDocumentChanges().size());
-//                        for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
-//                            if (firstVisible == null)
-//                                firstVisible = dc.getDocument();
-//                            Message message = new Message();
-//                            message.setContent((String) dc.getDocument().getData().getOrDefault("content", ""));
-//                            message.setSender((String) dc.getDocument().getData().getOrDefault("sender", ""));
-//                            Timestamp createdAtTimestamp = (Timestamp) dc.getDocument().getData().get("createdAt");
-//                            message.setCreatedAt(createdAtTimestamp.toDate());
-//                            olderMessages.add(0, message);
-//                            System.out.println(128 + ", " + dc.getDocument().get("content"));
-//
-//                        }
-//                        Collections.reverse(olderMessages);
-//                        messages.addAll(0, olderMessages);
-//                        messageListAdapter.setMessages(messages);
-//                    }
-//                });
-//            }
-//        });
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void createNotificationChannel() {
+        NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_DESCRIPTION, NotificationManager.IMPORTANCE_HIGH);
+        Uri sound = Uri.parse("android.resource://" + getApplicationContext().getPackageName() + "/" + R.raw.incoming_message);
+        AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .setUsage(AudioAttributes.USAGE_ALARM)
+                .build();
+        channel.setSound(sound, audioAttributes);
+        NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.createNotificationChannel(channel);
+    }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.chat_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.sign_out: {
+                firebaseAuth.signOut();
+                this.startActivity(new Intent(this, LoginActivity.class));
+                finish();
+                return true;
+            }
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     private View.OnClickListener sendMessageButtonOnClickListener = new View.OnClickListener() {
@@ -186,39 +219,78 @@ public class MainActivity extends AppCompatActivity {
     };
 
     private void realtimeUpdateListener() {
-        fireStoreChat().orderBy("createdAt", Query.Direction.DESCENDING).limit(150).addSnapshotListener(this, new EventListener<QuerySnapshot>() {
+        fireStoreChat().orderBy("createdAt", Query.Direction.DESCENDING).limit(50).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
-            public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots, @javax.annotation.Nullable FirebaseFirestoreException e) {
-                if (e != null) {
-                    Log.w(FIREBASE_INSTANCE_ID_TAG, "Listen failed.", e);
-                    return;
-                }
-                DocumentSnapshot lastVisible = queryDocumentSnapshots.getDocuments().get(0);
-                System.out.println(148 + ", " + lastVisible.getData().get("content"));
-
-                for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
-                    if (dc != null && dc.getType().equals(DocumentChange.Type.ADDED)) {
-
-                        Log.d(FIREBASE_INSTANCE_ID_TAG, "Current data: " + dc.getDocument().getData());
-                        List<Message> messages = messageListAdapter.getMessages();
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                System.out.println(203 + ", " + task.getResult().getDocuments().get(0).getData().toString());
+                List<DocumentSnapshot> messagesDocumentSnapshot = task.getResult().getDocuments();
+                start = messagesDocumentSnapshot.get(0);
+                end = messagesDocumentSnapshot.get(messagesDocumentSnapshot.size() - 1);
+                if (task.isSuccessful()) {
+                    for (DocumentSnapshot messageSnapshot : task.getResult()) {
+                        System.out.println(messageSnapshot.getData().toString());
                         Message newMessage = new Message();
-                        newMessage.setContent((String) dc.getDocument().getData().getOrDefault("content", ""));
-                        newMessage.setSender((String) dc.getDocument().getData().getOrDefault("sender", ""));
-                        Timestamp createdAtTimestamp = (Timestamp) dc.getDocument().getData().get("createdAt");
+                        newMessage.setContent((String) messageSnapshot.getData().getOrDefault("content", ""));
+                        newMessage.setSender((String) messageSnapshot.getData().getOrDefault("sender", ""));
+                        Timestamp createdAtTimestamp = (Timestamp) messageSnapshot.getData().getOrDefault("createdAt", "");
                         newMessage.setCreatedAt(createdAtTimestamp.toDate());
-                        if (!isFirstLoading) {
-                            firstVisible = dc.getDocument();
-                            messages.add(0, newMessage);
-                        } else messages.add(newMessage);
-                        messageListAdapter.setMessages(messages);
-
-                    } else {
-                        Log.d(FIREBASE_INSTANCE_ID_TAG, "Current data: null");
+                        isTouchBoundary = (boolean) messageSnapshot.getData().getOrDefault("isFirstMessage", false);
+                        messages.add(0, newMessage);
                     }
+                    messageListAdapter.setMessages(messages);
+                    System.out.println(task.getResult().getDocuments().size());
+                    EventListener<QuerySnapshot> listener = new EventListener<QuerySnapshot>() {
+                        @Override
+                        public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                            for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
+                                if (dc != null && dc.getType().equals(DocumentChange.Type.ADDED)) {
+                                    Message newMessage = new Message();
+                                    newMessage.setContent((String) dc.getDocument().getData().getOrDefault("content", ""));
+                                    newMessage.setSender((String) dc.getDocument().getData().getOrDefault("sender", ""));
+                                    Timestamp createdAtTimestamp = (Timestamp) dc.getDocument().getData().get("createdAt");
+                                    newMessage.setCreatedAt(createdAtTimestamp.toDate());
+                                    messages.add(newMessage);
+                                }
+                            }
+                            messageListAdapter.setMessages(messages);
+                            messageListRecyclerView.smoothScrollToPosition(messageListAdapter.getMessages().size() - 1);
+                        }
+                    };
+                    fireStoreChat().orderBy("createdAt").startAfter(start).addSnapshotListener(listener);
+                    System.out.println(236 + ", " + messageListAdapter.getMessages().size());
                 }
-                messageListRecyclerView.smoothScrollToPosition(messageListAdapter.getMessages().size() - 1);
-                System.out.println(176 + ", " + firstVisible.get("content"));
-                if (!isFirstLoading) isFirstLoading = true;
+            }
+        });
+    }
+
+    private void loadOlderMessage() {
+        fireStoreChat().orderBy("createdAt", Query.Direction.DESCENDING).startAt(end).limit(51).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                messageListAdapter.setLoading(false);
+                if (task.isSuccessful()) {
+                    // end = null;
+                    List<DocumentSnapshot> messagesDocumentSnapshot = task.getResult().getDocuments();
+                    end = messagesDocumentSnapshot.get(messagesDocumentSnapshot.size() - 1);
+                    boolean ignore = true;
+                    for (DocumentSnapshot messageSnapshot : messagesDocumentSnapshot) {
+                        if (ignore) {
+                            ignore = false;
+                            continue;
+                        }
+                        Message newMessage = new Message();
+                        newMessage.setContent((String) messageSnapshot.getData().getOrDefault("content", ""));
+                        newMessage.setSender((String) messageSnapshot.getData().getOrDefault("sender", ""));
+                        Timestamp createdAtTimestamp = (Timestamp) messageSnapshot.getData().getOrDefault("createdAt", "");
+                        newMessage.setCreatedAt(createdAtTimestamp.toDate());
+                        isTouchBoundary = (boolean) messageSnapshot.getData().getOrDefault("isFirstMessage", false);
+                        messages.add(0, newMessage);
+                        System.out.println(305 + ", " + messageSnapshot.getData().toString());
+                    }
+                    messageListAdapter.setMessages(messages);
+                    messageListRecyclerView.scrollToPosition(50 + 15);
+
+                }
             }
         });
     }
