@@ -5,7 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <meta-data
         android:name="com.google.firebase.messaging.default_notification_channel_id"
-        android:value="CHATAPP_FIREBASE_NOTITICATION_ID" />
+        android:value="CHAT_NOTIFICATION_CHANNEL_ID" />
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -13,7 +13,20 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+
+        <activity
+            android:name=".SplashActivity"
+            android:theme="@style/SplashTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+
         <activity android:name=".MainActivity">
+
             <!--            <intent-filter>-->
             <!--                <action android:name="android.intent.action.MAIN" />-->
 
@@ -21,10 +34,7 @@
             <!--            </intent-filter>-->
         </activity>
         <activity android:name=".LoginActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+
         </activity>
 
         <service

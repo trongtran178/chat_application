@@ -1,13 +1,17 @@
 package com.example.chatapp.services;
 
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioAttributes;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
 import com.example.chatapp.MainActivity;
@@ -20,13 +24,22 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 //    private NotificationManager notificationManager;
 
 
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // createNotificationChannel();
+        }
+    }
+
+
 
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
         System.out.println(20 + ", " + remoteMessage.getNotification().getBody());
         System.out.println(21 + ", " + remoteMessage.getData());
-        sendNotification(remoteMessage.getNotification().getBody());
+//        sendNotification(remoteMessage.getNotification().getBody());
     }
 
     private void sendNotification(String messageBody) {
@@ -35,7 +48,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
                 PendingIntent.FLAG_ONE_SHOT);
 
-        Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.circle)
                 .setContentTitle("FCM Message")
