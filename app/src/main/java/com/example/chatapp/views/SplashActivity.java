@@ -1,4 +1,4 @@
-package com.example.chatapp;
+package com.example.chatapp.views;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,8 +8,6 @@ import android.widget.ImageView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.bumptech.glide.Glide;
-
 public class SplashActivity extends AppCompatActivity {
 
     private ImageView splashIcon;
@@ -17,9 +15,6 @@ public class SplashActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        splashIcon = findViewById(R.id.kawaii_icon);
-
-//        Glide.with(this).load(R.drawable.kawaii).into(splashIcon);
 
         new Handler().postDelayed(new Runnable() {
             @Override

@@ -1,6 +1,7 @@
 package com.example.chatapp.adapter;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +10,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -18,8 +20,11 @@ import com.example.chatapp.R;
 import com.example.chatapp.models.Message;
 import com.google.firebase.auth.FirebaseAuth;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class MessageListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -65,9 +70,9 @@ public class MessageListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        if (viewType == ITEM_TYPE.TYPE_MY_MSG.ordinal())
+        if (viewType == ITEM_TYPE.TYPE_MY_MSG.ordinal()) {
             return new MyMessageHolder(this.inflater.inflate(R.layout.item_my_message, parent, false));
-        else if (viewType == ITEM_TYPE.TYPE_FRIENDS_MSG.ordinal())
+        } else if (viewType == ITEM_TYPE.TYPE_FRIENDS_MSG.ordinal())
             return new OthersMessageHolder(this.inflater.inflate(R.layout.item_others_message, parent, false));
         else return new LoadingHolder(this.inflater.inflate(R.layout.item_loading, parent, false));
     }
@@ -80,50 +85,88 @@ public class MessageListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             ((MyMessageHolder) holder).content.setVisibility(View.VISIBLE);
             ((MyMessageHolder) holder).content.setText(message.getContent());
             handleMessageAvatar(messages.get(position).getSender(), holder, itemViewType);
+            handleMessageBackgroundColor(messages.get(position).getSender(), (MessageHolder) holder);
         } else if (itemViewType == ITEM_TYPE.TYPE_FRIENDS_MSG.ordinal()) {
             ((OthersMessageHolder) holder).content.setVisibility(View.VISIBLE);
             ((OthersMessageHolder) holder).content.setText(message.getContent());
             handleMessageAvatar(messages.get(position).getSender(), holder, itemViewType);
+            handleMessageBackgroundColor(messages.get(position).getSender(), (MessageHolder) holder);
+
         } else {
             ((LoadingHolder) holder).progressBar.setVisibility(View.VISIBLE);
         }
     }
 
+    private void handleMessageBackgroundColor(String sender, MessageHolder holder) {
+        TextView textView = holder.getContent();
+        switch (sender) {
+            case "trong.it203@gmail.com": {
+                textView.setBackground(ContextCompat.getDrawable(context, R.drawable.trong_message));
+                break;
+            }
+            case "vunguyen@gmail.com": {
+                textView.setBackground(ContextCompat.getDrawable(context, R.drawable.vu_messaeg));
+                break;
+            }
+            case "tuho@gmail.com": {
+                textView.setBackground(ContextCompat.getDrawable(context, R.drawable.tu_message));
+                break;
+            }
+            case "tuanmai@gmail.com": {
+                textView.setBackground(ContextCompat.getDrawable(context, R.drawable.tuan_message));
+                break;
+            }
+        }
+        holder.setContent(textView);
+    }
+
+
     private void handleMessageAvatar(String sender, @NonNull RecyclerView.ViewHolder holder,
                                      int itemViewType) {
         switch (sender) {
             case "trong.it203@gmail.com": {
-                if (itemViewType == ITEM_TYPE.TYPE_MY_MSG.ordinal())
+                if (itemViewType == ITEM_TYPE.TYPE_MY_MSG.ordinal()) {
                     Glide.with(context).load(R.drawable.trongtran).into(((MyMessageHolder) holder).headImage);
-                else
+                } else {
                     Glide.with(context).load(R.drawable.trongtran).into(((OthersMessageHolder) holder).headImage);
+                }
                 break;
             }
             case "tuanmai@gmail.com": {
-                if (itemViewType == ITEM_TYPE.TYPE_MY_MSG.ordinal())
+                if (itemViewType == ITEM_TYPE.TYPE_MY_MSG.ordinal()) {
                     Glide.with(context).load(R.drawable.tuanmai).into(((MyMessageHolder) holder).headImage);
-                else
+                } else {
                     Glide.with(context).load(R.drawable.tuanmai).into(((OthersMessageHolder) holder).headImage);
+                }
                 break;
             }
+
             case "vunguyen@gmail.com": {
-                if (itemViewType == ITEM_TYPE.TYPE_MY_MSG.ordinal())
+                if (itemViewType == ITEM_TYPE.TYPE_MY_MSG.ordinal()) {
                     Glide.with(context).load(R.drawable.vunguyen).into(((MyMessageHolder) holder).headImage);
-                else
+                } else {
                     Glide.with(context).load(R.drawable.vunguyen).into(((OthersMessageHolder) holder).headImage);
+                }
                 break;
             }
             case "tuho@gmail.com": {
-                if (itemViewType == ITEM_TYPE.TYPE_MY_MSG.ordinal())
+                if (itemViewType == ITEM_TYPE.TYPE_MY_MSG.ordinal()) {
                     Glide.with(context).load(R.drawable.tuho).into(((MyMessageHolder) holder).headImage);
-                else
+
+                } else {
                     Glide.with(context).load(R.drawable.tuho).into(((OthersMessageHolder) holder).headImage);
+                }
                 break;
             }
         }
 
     }
 
+    enum ITEM_TYPE {
+        TYPE_MY_MSG,
+        TYPE_FRIENDS_MSG,
+        TYPE_LOADING
+    }
 
     @Override
     public long getItemId(int position) {
@@ -143,11 +186,6 @@ public class MessageListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         else return ITEM_TYPE.TYPE_FRIENDS_MSG.ordinal();
     }
 
-    public enum ITEM_TYPE {
-        TYPE_MY_MSG,
-        TYPE_FRIENDS_MSG,
-        TYPE_LOADING
-    }
 
     @Override
     public int getItemCount() {
@@ -163,7 +201,7 @@ public class MessageListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         notifyDataSetChanged();
     }
 
-    public static class MyMessageHolder extends RecyclerView.ViewHolder {
+    public class MyMessageHolder extends RecyclerView.ViewHolder implements MessageHolder {
         private ImageView headImage;
         private TextView content;
 
@@ -172,28 +210,48 @@ public class MessageListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             this.headImage = itemView.findViewById(R.id.my_message_avatar);
             this.content = itemView.findViewById(R.id.my_message_content);
         }
+
+        public TextView getContent() {
+            return content;
+        }
+
+        public void setContent(TextView content) {
+            this.content = content;
+        }
     }
 
-    public static class OthersMessageHolder extends RecyclerView.ViewHolder {
+    interface MessageHolder {
+        TextView getContent();
+
+        void setContent(TextView content);
+    }
+
+    public class OthersMessageHolder extends RecyclerView.ViewHolder implements MessageHolder {
         private ImageView headImage;
         private TextView content;
-
 
         public OthersMessageHolder(@NonNull View itemView) {
             super(itemView);
             this.headImage = itemView.findViewById(R.id.others_message_avatar);
             this.content = itemView.findViewById(R.id.others_message_content);
         }
+
+        public TextView getContent() {
+            return content;
+        }
+
+        public void setContent(TextView content) {
+            this.content = content;
+        }
     }
 
-    public static class LoadingHolder extends RecyclerView.ViewHolder {
+    public class LoadingHolder extends RecyclerView.ViewHolder {
         private ProgressBar progressBar;
 
         public LoadingHolder(@NonNull View itemView) {
             super(itemView);
             this.progressBar = itemView.findViewById(R.id.loading_progress_bar);
         }
-
     }
 
     public boolean isLoading() {

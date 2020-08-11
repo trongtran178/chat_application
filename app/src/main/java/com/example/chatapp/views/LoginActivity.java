@@ -1,4 +1,4 @@
-package com.example.chatapp;
+package com.example.chatapp.views;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.chatapp.R;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -84,8 +85,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                             }
                         }
                     });
-//            Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
-//            startActivityForResult(signInIntent, RC_SIGN_IN);
         }
     };
 
