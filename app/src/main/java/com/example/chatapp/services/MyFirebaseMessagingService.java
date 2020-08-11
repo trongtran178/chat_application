@@ -1,28 +1,23 @@
 package com.example.chatapp.services;
 
-import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.media.AudioAttributes;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
-import com.example.chatapp.MainActivity;
 import com.example.chatapp.R;
+import com.example.chatapp.views.MainActivity;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private static final String TAG = "MyFirebaseMsgService";
-//    private NotificationManager notificationManager;
-
 
     @Override
     public void onCreate() {
@@ -33,13 +28,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
 
-
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
         System.out.println(20 + ", " + remoteMessage.getNotification().getBody());
         System.out.println(21 + ", " + remoteMessage.getData());
-//        sendNotification(remoteMessage.getNotification().getBody());
     }
 
     private void sendNotification(String messageBody) {

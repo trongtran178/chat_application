@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginTop="16dp">
+    android:layout_marginTop="12dp">
 
     <ImageView
         android:id="@+id/others_message_avatar"
@@ -10,25 +10,23 @@
         android:layout_height="48dp"
         android:layout_alignParentLeft="true"></ImageView>
 
-    <RelativeLayout
+    <TextView
+        android:id="@+id/others_message_content"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/others_message_avatar">
+        android:layout_marginLeft="8dp"
+        android:layout_toRightOf="@id/others_message_avatar"
+        android:gravity="center_vertical"
+        android:lineSpacingExtra="8px"
+        android:maxWidth="300dp"
+        android:minHeight="48dp"
+        android:paddingLeft="12dp"
+        android:paddingTop="4dp"
+        android:paddingRight="12dp"
+        android:paddingBottom="8dp"
+        android:text="Cái gì, mày nói gì? Cái gì, mày nói gì? Cái gì, mày nói gì? Cái gì, mày nói gì? Cái gì, mày nói gì? Cái gì, mày nói gì? Cái gì, mày nói gì? "
+        android:textColor="@color/common_google_signin_btn_text_dark" />
 
-        <TextView
-            android:id="@+id/others_message_content"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_wechat_chat1"
-            android:gravity="center_vertical"
-            android:lineSpacingExtra="8px"
-            android:maxWidth="300dp"
-            android:paddingLeft="32dp"
-            android:paddingTop="2dp"
-            android:paddingRight="12dp"
-            android:paddingBottom="8dp"
-            android:text="Cái gì, mày nói gì? Cái gì, mày nói gì? Cái gì, mày nói gì? Cái gì, mày nói gì? Cái gì, mày nói gì? Cái gì, mày nói gì? Cái gì, mày nói gì? " />
-
-    </RelativeLayout>
+    <!--    </RelativeLayout>-->
 
 </RelativeLayout>
