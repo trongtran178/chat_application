@@ -30,6 +30,9 @@ import com.example.chatapp.R;
 import com.example.chatapp.adapter.MessageListAdapter;
 import com.example.chatapp.models.Message;
 import com.example.chatapp.viewmodels.MainViewModel;
+import com.github.javiersantos.appupdater.AppUpdater;
+import com.github.javiersantos.appupdater.enums.Display;
+import com.github.javiersantos.appupdater.enums.UpdateFrom;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -47,10 +50,14 @@ public class MainActivity extends AppCompatActivity {
 
     private MainViewModel mainViewModel;
 
+    // UPDATE !!
+    private AppUpdater appUpdater;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        appUpdater = new AppUpdater(this);
 
         sendMessageButton = findViewById(R.id.send_message_button);
         messageContentEditText = findViewById(R.id.message_content_edit_text);
@@ -94,6 +101,9 @@ public class MainActivity extends AppCompatActivity {
         messageListAdapter.setOnLoadMoreMessageListener(onLoadMoreMessageListener);
 
         sendMessageButton.setOnClickListener(sendMessageButtonOnClickListener);
+
+        appUpdater.setDisplay(Display.NOTIFICATION).setUpdateFrom(UpdateFrom.GITHUB).setGitHubUserAndRepo("trongtran178", "chat_application");
+        appUpdater.start();
 
     }
 
