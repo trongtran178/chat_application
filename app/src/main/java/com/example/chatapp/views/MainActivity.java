@@ -1,6 +1,9 @@
 package com.example.chatapp.views;
 
+import android.app.ActionBar;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -9,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -16,6 +20,7 @@ import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -64,7 +69,6 @@ public class MainActivity extends AppCompatActivity {
         messageListRecyclerView = findViewById(R.id.recyclerview_message_list);
         linearLayout = findViewById(R.id.background);
 
-
         Glide.with(MainActivity.this)
                 .load("https://picsum.photos/412/732")
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
@@ -102,8 +106,10 @@ public class MainActivity extends AppCompatActivity {
 
         sendMessageButton.setOnClickListener(sendMessageButtonOnClickListener);
 
-        appUpdater.setDisplay(Display.NOTIFICATION).setUpdateFrom(UpdateFrom.GITHUB).setGitHubUserAndRepo("trongtran178", "chat_application");
-        appUpdater.start();
+        appUpdater.setUpdateFrom(UpdateFrom.GITHUB)
+                .setGitHubUserAndRepo("trongtran178", "chat_application")
+                .setDisplay(Display.NOTIFICATION)
+                .start();
 
     }
 

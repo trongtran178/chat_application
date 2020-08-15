@@ -31,10 +31,8 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     private Button loginButton;
 
     private FirebaseAuth firebaseAuth;
-    private GoogleApiClient mGoogleApiClient;
 
     private static final int RC_SIGN_IN = 9001;
-
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -51,25 +49,17 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 .requestEmail()
                 .build();
 
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(LoginActivity.this, this)
-                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
-                .build();
         loginButton.setOnClickListener(signInOnClickListener);
 
         if (firebaseAuth.getCurrentUser() != null) {
             startActivity(new Intent(getApplicationContext(), MainActivity.class));
             finish();
         }
-
-
     }
 
     private View.OnClickListener signInOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (usernameEditText.getText().toString() == null || usernameEditText.getText().toString().isEmpty())
-                return;
             if (usernameEditText.getText().toString() == null || usernameEditText.getText().toString().isEmpty())
                 return;
             firebaseAuth.signInWithEmailAndPassword(usernameEditText.getText().toString(), passwordEditText.getText().toString())
