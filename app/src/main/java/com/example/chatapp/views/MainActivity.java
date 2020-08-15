@@ -106,8 +106,13 @@ public class MainActivity extends AppCompatActivity {
 
         sendMessageButton.setOnClickListener(sendMessageButtonOnClickListener);
 
-        appUpdater.setUpdateFrom(UpdateFrom.GITHUB)
-                .setGitHubUserAndRepo("trongtran178", "chat_application")
+//        appUpdater.setUpdateFrom(UpdateFrom.GITHUB)
+//                .setGitHubUserAndRepo("trongtran178", "chat_application")
+//                .setDisplay(Display.NOTIFICATION)
+//                .start();
+
+        appUpdater.setUpdateFrom(UpdateFrom.JSON)
+                .setUpdateJSON("https://github.com/trongtran178/chat_application/blob/master/app/update-changelog.json")
                 .setDisplay(Display.NOTIFICATION)
                 .start();
 
