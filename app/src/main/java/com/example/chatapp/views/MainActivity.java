@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
 //                .start();
 
         appUpdater.setUpdateFrom(UpdateFrom.JSON)
-                .setUpdateJSON("https://github.com/trongtran178/chat_application/blob/master/app/update-changelog.json")
+                .setUpdateJSON("https://raw.githubusercontent.com/trongtran178/chat_application/master/app/update-changelog.json")
                 .setDisplay(Display.NOTIFICATION)
                 .start();
 
