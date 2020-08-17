@@ -21,8 +21,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -42,6 +46,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -90,14 +95,24 @@ public class MainActivity extends AppCompatActivity {
         messageListRecyclerView.setAdapter(messageListAdapter);
 
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
-
         // register device and update user fcm token
         mainViewModel.registerDevice();
-
         mainViewModel.loadMessagesAndListenNewMessage().observe(this, new Observer<List<Message>>() {
             @Override
-            public void onChanged(List<Message> messages) {
-                messageListAdapter.setMessages(messages);
+            public void onChanged(final List<Message> messages) {
+                messageListRecyclerView.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        List<Message> newMessages = messageListAdapter.getMessages();
+                        for (int i = 0; i < messages.size(); i++) {
+                            if (!newMessages.contains(messages.get(i)))
+                                newMessages.add(messages.get(i));
+                            else
+                                continue;
+                        }
+                        messageListAdapter.setMessages(newMessages);
+                    }
+                }, 1000);
 
             }
         });
@@ -106,16 +121,11 @@ public class MainActivity extends AppCompatActivity {
 
         sendMessageButton.setOnClickListener(sendMessageButtonOnClickListener);
 
-//        appUpdater.setUpdateFrom(UpdateFrom.GITHUB)
-//                .setGitHubUserAndRepo("trongtran178", "chat_application")
-//                .setDisplay(Display.NOTIFICATION)
-//                .start();
-
+        // trigger update new version
         appUpdater.setUpdateFrom(UpdateFrom.JSON)
                 .setUpdateJSON("https://raw.githubusercontent.com/trongtran178/chat_application/master/app/update-changelog.json")
                 .setDisplay(Display.NOTIFICATION)
                 .start();
-
     }
 
     @Override
@@ -173,8 +183,13 @@ public class MainActivity extends AppCompatActivity {
                     mainViewModel.loadOldMessages().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                            messageListAdapter.setLoading(false);
-                            messageListRecyclerView.scrollToPosition(50);
+                            if (task.isSuccessful()) {
+                                messageListAdapter.setLoading(false);
+                                messageListRecyclerView.scrollToPosition(50);
+
+                            } else {
+                                // DO SOMETHING
+                            }
                         }
                     });
 

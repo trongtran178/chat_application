@@ -19,6 +19,8 @@ import com.google.firebase.messaging.RemoteMessage;
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private static final String TAG = "MyFirebaseMsgService";
 
+
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -31,6 +33,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
+        System.out.println(34 + ", lala");
+
         System.out.println(20 + ", " + remoteMessage.getNotification().getBody());
         System.out.println(21 + ", " + remoteMessage.getData());
     }

@@ -7,13 +7,26 @@
     android:orientation="vertical">
 
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:fontFamily="monospace"
+        android:text="Đăng nhập"
+        android:textSize="32dp" />
+
+
     <EditText
         android:id="@+id/username_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
         android:layout_marginVertical="8dp"
-        android:hint="Email" />
+        android:background="@drawable/chat_input_edit_text"
+        android:hint="Email"
+        android:padding="12dp"
+        android:textColor="@color/custom"
+        android:textColorHint="@color/custom" />
 
     <EditText
         android:id="@+id/password_edit_text"
@@ -21,14 +34,22 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
         android:layout_marginVertical="8dp"
-        android:hint="Password"
-        android:inputType="textPassword" />
+
+        android:background="@drawable/chat_input_edit_text"
+        android:hint="Mât khẩu"
+        android:inputType="textPassword"
+        android:padding="12dp"
+        android:textColor="@color/custom"
+        android:textColorHint="@color/custom" />
 
     <Button
         android:id="@+id/login_button"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        android:text="Login" />
+        android:background="@drawable/login_button"
+        android:text="Đăng nhập"
+
+        android:textColor="@color/blue" />
 
 </LinearLayout>

@@ -3,9 +3,15 @@
     package="com.example.chatapp">
 
     <uses-permission android:name="android.permission.INTERNET" />
+
     <meta-data
         android:name="com.google.firebase.messaging.default_notification_channel_id"
         android:value="CHAT_NOTIFICATION_CHANNEL_ID" />
+
+    <meta-data
+        android:name="com.google.firebase.messaging.default_notification_icon"
+        android:resource="@drawable/puzzle_64" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher2"
@@ -13,7 +19,6 @@
         android:roundIcon="@mipmap/ic_launcher2_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat">
-
 
         <activity
             android:name=".views.SplashActivity"
@@ -25,7 +30,9 @@
         </activity>
 
 
-        <activity android:name=".views.MainActivity" />
+        <activity
+            android:name=".views.MainActivity"
+            android:screenOrientation="portrait" />
         <activity android:name=".views.LoginActivity">
 
         </activity>

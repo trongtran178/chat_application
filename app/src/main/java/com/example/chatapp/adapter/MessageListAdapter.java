@@ -104,15 +104,15 @@ public class MessageListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 textView.setBackground(ContextCompat.getDrawable(context, R.drawable.trong_message));
                 break;
             }
-            case "vunguyen@gmail.com": {
+            case "hoangtunvv@gmail.com": {
                 textView.setBackground(ContextCompat.getDrawable(context, R.drawable.vu_messaeg));
                 break;
             }
-            case "tuho@gmail.com": {
+            case "hoanhtuds@gmail.com": {
                 textView.setBackground(ContextCompat.getDrawable(context, R.drawable.tu_message));
                 break;
             }
-            case "tuanmai@gmail.com": {
+            case "tuanit381@gmail.com": {
                 textView.setBackground(ContextCompat.getDrawable(context, R.drawable.tuan_message));
                 break;
             }
@@ -132,7 +132,7 @@ public class MessageListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 }
                 break;
             }
-            case "tuanmai@gmail.com": {
+            case "tuanit381@gmail.com": {
                 if (itemViewType == ITEM_TYPE.TYPE_MY_MSG.ordinal()) {
                     Glide.with(context).load(R.drawable.tuanmai).into(((MyMessageHolder) holder).headImage);
                 } else {
@@ -141,7 +141,7 @@ public class MessageListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 break;
             }
 
-            case "vunguyen@gmail.com": {
+            case "hoangtunvv@gmail.com": {
                 if (itemViewType == ITEM_TYPE.TYPE_MY_MSG.ordinal()) {
                     Glide.with(context).load(R.drawable.vunguyen).into(((MyMessageHolder) holder).headImage);
                 } else {
@@ -149,7 +149,7 @@ public class MessageListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 }
                 break;
             }
-            case "tuho@gmail.com": {
+            case "hoanhtuds@gmail.com": {
                 if (itemViewType == ITEM_TYPE.TYPE_MY_MSG.ordinal()) {
                     Glide.with(context).load(R.drawable.tuho).into(((MyMessageHolder) holder).headImage);
 

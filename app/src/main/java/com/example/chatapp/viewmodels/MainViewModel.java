@@ -28,8 +28,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 
-import android.os.Handler;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -40,7 +38,6 @@ import javax.annotation.Nullable;
 public class MainViewModel extends AndroidViewModel {
 
     private MutableLiveData<List<Message>> messages;
-
     private DocumentSnapshot start, end;
     private FirebaseAuth firebaseAuth;
 
@@ -49,10 +46,15 @@ public class MainViewModel extends AndroidViewModel {
     private static final String FIREBASE_INSTANCE_ID_TAG = "FIREBASE_INSTANCE_ID_TAG";
 
     private boolean isFullMessages = false;
+    private boolean isScrollBehaviour = false;
+    private boolean isListenNewMessage = false;
 
     public MainViewModel(@NonNull Application application) {
         super(application);
+        messages = new MutableLiveData<>();
+        messages.setValue(new ArrayList<Message>());
         firebaseAuth = FirebaseAuth.getInstance();
+
     }
 
     private static CollectionReference fireStoreChat() {
@@ -68,13 +70,7 @@ public class MainViewModel extends AndroidViewModel {
     }
 
     public LiveData<List<Message>> loadMessagesAndListenNewMessage() {
-
-        if (messages == null) {
-            List<Message> messagesValue = new ArrayList<>();
-            messages = new MutableLiveData<>();
-            messages.setValue(messagesValue);
-        }
-
+        isListenNewMessage = true;
         // Query 50 message first
         fireStoreChat().orderBy("createdAt", Query.Direction.DESCENDING).limit(50).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -83,31 +79,33 @@ public class MainViewModel extends AndroidViewModel {
                 start = messagesDocumentSnapshot.get(0);
                 end = messagesDocumentSnapshot.get(messagesDocumentSnapshot.size() - 1);
                 if (task.isSuccessful()) {
+                    List<Message> messagesData = new ArrayList<>();
                     for (DocumentSnapshot messageSnapshot : task.getResult()) {
 
                         Message newMessage = getMessageFromDocumentSnapshot(messageSnapshot);
 
                         isFullMessages = (boolean) messageSnapshot.getData().getOrDefault("isFirstMessage", false);
 
-                        List<Message> ms = messages.getValue();
-                        ms.add(0, newMessage);
-                        messages.setValue(ms);
+                        messagesData = messages.getValue();
+                        if (!messagesData.contains(newMessage))
+                            messagesData.add(0, newMessage);
                     }
-                    System.out.println(task.getResult().getDocuments().size());
+                    messages.setValue(messagesData);
+
+
                     // Then, add listener to listen new message
                     EventListener<QuerySnapshot> listener = new EventListener<QuerySnapshot>() {
                         @Override
                         public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                            List<Message> ms = messages.getValue();
                             for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
                                 if (dc != null && dc.getType().equals(DocumentChange.Type.ADDED)) {
                                     Message newMessage = getMessageFromDocumentSnapshot(dc.getDocument());
-
-                                    List<Message> ms = messages.getValue();
-
-                                    ms.add(newMessage);
-                                    messages.setValue(ms);
+                                    if (!ms.contains(newMessage))
+                                        ms.add(newMessage);
                                 }
                             }
+                            messages.setValue(ms);
                         }
                     };
                     fireStoreChat().orderBy("createdAt").startAfter(start).addSnapshotListener(listener);
@@ -117,31 +115,54 @@ public class MainViewModel extends AndroidViewModel {
         return messages;
     }
 
+
+//    public LiveData<Message> listenNewMessage() {
+//        EventListener<QuerySnapshot> listener = new EventListener<QuerySnapshot>() {
+//            @Override
+//            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+//                List<Message> ms = messages.getValue();
+//                for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
+//                    if (dc != null && dc.getType().equals(DocumentChange.Type.ADDED)) {
+//                        System.out.println(107 + ", here");
+////                        Message newMessage = getMessageFromDocumentSnapshot(dc.getDocument());
+//                        newMessage.setValue(getMessageFromDocumentSnapshot(dc.getDocument()));
+//
+//                    }
+//                }
+//                messages.setValue(ms);
+//            }
+//        };
+//        fireStoreChat().orderBy("createdAt").startAfter(start).addSnapshotListener(listener);
+//        return newMessage;
+//    }
+
+
     // add 0 to first index, viewHolder will show circle loading process
     public void loading() {
         final List<Message> ms = messages.getValue();
         ms.add(0, null);
         messages.setValue(ms);
+
     }
 
     public Task<QuerySnapshot> loadOldMessages() {
-
         final List<Message> ms = messages.getValue();
         return fireStoreChat().orderBy("createdAt", Query.Direction.DESCENDING).startAt(end).limit(51).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                isScrollBehaviour = true;
                 if (task.isSuccessful()) {
                     ms.remove(0);
                     messages.setValue(ms);
                     List<DocumentSnapshot> messagesDocumentSnapshot = task.getResult().getDocuments();
                     end = messagesDocumentSnapshot.get(messagesDocumentSnapshot.size() - 1);
-                    boolean ignore = true; // ignore first message, because first message has existed !
+                    boolean ignore = true;
                     for (DocumentSnapshot messageSnapshot : messagesDocumentSnapshot) {
+                        // ignore first message, because first message has existed !
                         if (ignore) {
                             ignore = false;
                             continue;
                         }
-//                        Message newMessage = new Message();
                         Message newMessage = getMessageFromDocumentSnapshot(messageSnapshot);
 
                         isFullMessages = (boolean) messageSnapshot.getData().getOrDefault("isFirstMessage", false);
@@ -152,7 +173,6 @@ public class MainViewModel extends AndroidViewModel {
                 }
             }
         });
-
     }
 
     public void sendMessage(String sender, String content) {
@@ -216,4 +236,15 @@ public class MainViewModel extends AndroidViewModel {
     }
 
 
+    public boolean isScrollBehaviour() {
+        return isScrollBehaviour;
+    }
+
+    public void setScrollBehaviour(boolean scrollBehaviour) {
+        isScrollBehaviour = scrollBehaviour;
+    }
+
+    public boolean isListenNewMessage() {
+        return isListenNewMessage;
+    }
 }

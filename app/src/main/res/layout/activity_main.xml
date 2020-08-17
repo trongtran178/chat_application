@@ -22,21 +22,26 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#fff"
+        android:layout_marginTop="16dp"
+
         android:orientation="horizontal">
 
         <EditText
             android:id="@+id/message_content_edit_text"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="4dp"
+            android:layout_marginBottom="4dp"
             android:layout_weight="2"
+            android:background="@drawable/chat_input_edit_text"
             android:ellipsize="end"
             android:ems="10"
-            android:hint="Write a message"
+            android:hint="Nhập tin nhắn"
             android:inputType="text"
             android:paddingHorizontal="10dp"
             android:text=""
-            android:textColor="@color/cardview_dark_background" />
+            android:textColor="@color/cardview_dark_background"
+            android:textColorHint="@color/cardview_dark_background" />
 
         <ImageButton
             android:id="@+id/send_message_button"
@@ -44,10 +49,12 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginHorizontal="10dp"
-            android:background="@drawable/ic_send_black_24dp"
-            android:padding="20dp"
-            android:scaleType="fitCenter" />
+            android:layout_marginBottom="2dp"
+            android:background="@drawable/chat_input_edit_text"
+            android:padding="8dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_send_24dp" />
 
     </LinearLayout>
-
+    <!--    android:background="@drawable/ic_send_24dp"-->
 </LinearLayout>
