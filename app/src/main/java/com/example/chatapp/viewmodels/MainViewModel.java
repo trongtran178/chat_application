@@ -115,28 +115,6 @@ public class MainViewModel extends AndroidViewModel {
         return messages;
     }
 
-
-//    public LiveData<Message> listenNewMessage() {
-//        EventListener<QuerySnapshot> listener = new EventListener<QuerySnapshot>() {
-//            @Override
-//            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-//                List<Message> ms = messages.getValue();
-//                for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
-//                    if (dc != null && dc.getType().equals(DocumentChange.Type.ADDED)) {
-//                        System.out.println(107 + ", here");
-////                        Message newMessage = getMessageFromDocumentSnapshot(dc.getDocument());
-//                        newMessage.setValue(getMessageFromDocumentSnapshot(dc.getDocument()));
-//
-//                    }
-//                }
-//                messages.setValue(ms);
-//            }
-//        };
-//        fireStoreChat().orderBy("createdAt").startAfter(start).addSnapshotListener(listener);
-//        return newMessage;
-//    }
-
-
     // add 0 to first index, viewHolder will show circle loading process
     public void loading() {
         final List<Message> ms = messages.getValue();
